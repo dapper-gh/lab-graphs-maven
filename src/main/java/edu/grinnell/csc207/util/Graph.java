@@ -7,13 +7,14 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.ConcurrentModificationException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.Queue;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.Stack;
 
 /**
  * A simple weighted, directed, graph.
@@ -420,6 +421,63 @@ public class Graph {
   public Iterable<Edge> edgesFrom(String vertex) {
     return this.edgesFrom(vertexNumber(vertex));
   } // edgesFrom(String)
+
+  /**
+   * Returns an iterable for all reachable vertices.
+   *
+   * @param vertex Starting vertex.
+   * @return the iterable.
+   */
+  public Iterable<Integer> reachable(int vertex) {
+    return new Iterable<Integer>() {
+      public Iterator<Integer> iterator() {
+        Stack<Integer> stack = new Stack<Integer>();
+        stack.push(vertex);
+        return new Iterator<Integer>() {
+          public boolean hasNext() {
+            while (!stack.isEmpty() && Graph.this.isMarked(stack.peek())) {
+              stack.pop();
+            } // while
+            return !stack.isEmpty();
+          } // hasNext()
+          public Integer next() {
+            while (!stack.isEmpty()) {
+              Integer next = stack.pop();
+              if (!Graph.this.isMarked(next)) {
+                Graph.this.mark(next);
+                for (Edge edge : Graph.this.edgesFrom(next)) {
+                  stack.push(edge.target());
+                } // for
+                return next;
+              } // if
+            } // while
+            throw new ArrayIndexOutOfBoundsException();
+          } // next()
+        };
+      }
+    };
+  } // reachable(int)
+
+  /**
+   * Print out the vertices reachable from a given vertex.
+   * @param pen The PrintWriter to use when printing output.
+   * @param vertex The vertex at which to begin.
+   */
+  public void reachableFrom(PrintWriter pen, int vertex) {
+    Stack<Integer> stack = new Stack<>();
+    stack.push(vertex);
+    while (!stack.isEmpty()) {
+      Integer next = stack.pop();
+      if (!this.isMarked(next)) {
+        this.mark(next);
+        pen.println(next);
+        for (Edge edge : this.edgesFrom(next)) {
+          stack.push(edge.target());
+        } // for
+      } // if
+    } // while
+    this.clearMarks();
+  } // reachableFrom(PrintWriter, int)
 
   /**
    * Get a path from start to finish.

@@ -3,12 +3,14 @@ package edu.grinnell.csc207.experiments;
 import edu.grinnell.csc207.util.Graph;
 
 import java.io.PrintWriter;
+import java.util.Iterator;
+
 
 /**
  * A quick experiment with graphs.
  *
- * @author Your Name Here
- * @author Your Name Here
+ * @author David Stroud
+ * @author Sarah Deschamps
  * @author Samuel A. Rebelsky
  */
 public class GraphExperiment {
@@ -26,35 +28,49 @@ public class GraphExperiment {
     g.addVertex("a");
     g.addVertex("b");
     g.addVertex("c");
-    g.dump(pen);
+    g.dumpWithNames(pen);
 
     // Add a few edges
     g.addEdge("a", "b", 1);
     g.addEdge("a", "c", 2);
     g.addEdge("b", "c", 3);
     g.addEdge("b", "a", 4);
-    g.dump(pen);
+    g.dumpWithNames(pen);
 
     // Remove a vertex
     g.removeVertex("b");
-    g.dump(pen);
+    g.dumpWithNames(pen);
 
     // Add another vertex
     g.addVertex("d");
     g.addEdge("a", "d", 5);
     g.addEdge("d", "a", 6);
-    g.dump(pen);
+    g.dumpWithNames(pen);
 
     // And another (hopefully, this will replace the old b)
     g.addVertex("e");
     g.addEdge("e", "a", 7);
-    g.dump(pen);
+    g.dumpWithNames(pen);
+
+    pen.println("Reachable:");
+    for (Integer i : g.reachable(0)) {
+      pen.println(i);
+    } // for
+    
+    // Make sure the vertices iterator doesn't loop forever
+    pen.println("Iterator:");
+    Iterator<Integer> iter = g.vertices().iterator();
+    int count = 0;
+    while (iter.hasNext() && count < 20) {
+      iter.next();
+      pen.println(count++);
+    } // while
 
     // And another (hopefully, this will expand the graph again)
     g.addVertex("f");
     g.addEdge("c", "f", 8);
     g.addEdge("f", "c", 9);
-    g.dump(pen);
+    g.dumpWithNames(pen);
 
     // Add an invalid edge
     try {
@@ -68,11 +84,11 @@ public class GraphExperiment {
     for (int i = 1; i <= 4; i++) {
       g.addEdge(0, i, i * 10);
     } // for
-    g.dump(pen);
+    g.dumpWithNames(pen);
 
     // Remove an edge
     g.removeEdge("a", "c");
-    g.dump(pen);
+    g.dumpWithNames(pen);
   } // main(String[])
 
 } // class GraphExperiment
