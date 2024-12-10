@@ -1,6 +1,7 @@
 package edu.grinnell.csc207.experiments;
 
 import edu.grinnell.csc207.util.Graph;
+import edu.grinnell.csc207.util.Edge;
 
 import java.io.PrintWriter;
 import java.util.Iterator;
@@ -56,7 +57,36 @@ public class GraphExperiment {
     for (Integer i : g.reachable(0)) {
       pen.println(i);
     } // for
+
+    pen.println("Shortest path:");
+    for (Edge edge : g.shortestPath(g.vertexNumber("e"), g.vertexNumber("d"))) {
+      pen.println(g.vertexName(edge.source()) + " -> " + g.vertexName(edge.target()) + " (" + edge.weight() + ")");
+    } // for
+
+    Graph g2 = new Graph();
+    g2.addVertex("A");
+    g2.addVertex("B");
+    g2.addVertex("C");
+    g2.addVertex("D");
+    g2.addVertex("E");
+    g2.addVertex("F");
+    g2.addVertex("G");
     
+    g2.addEdge("A","F",1);
+    g2.addEdge("F","C",3);
+    g2.addEdge("C","E",0);
+    g2.addEdge("E","D",2);
+    g2.addEdge("D","G",3);
+    g2.addEdge("G","D",1);
+    g2.addEdge("B","G",1);
+    g2.addEdge("A","B",1);
+    g2.addEdge("B","D",4);
+
+    pen.println("Shortest path:");
+    for (Edge edge : g2.shortestPath(g2.vertexNumber("A"), g2.vertexNumber("D"))) {
+      pen.println(g2.vertexName(edge.source()) + " -> " + g2.vertexName(edge.target()) + " (" + edge.weight() + ")");
+    } // for
+
     // Make sure the vertices iterator doesn't loop forever
     pen.println("Iterator:");
     Iterator<Integer> iter = g.vertices().iterator();

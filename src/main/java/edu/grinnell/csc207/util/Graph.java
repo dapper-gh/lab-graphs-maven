@@ -13,6 +13,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
+import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Stack;
 
@@ -539,6 +540,77 @@ public class Graph {
   public List<Edge> path(String start, String finish) {
     return path(this.vertexNumber(start), this.vertexNumber(finish));
   } // path(String, String)
+
+  /**
+   * Finds the shortest path from source to sink, using Dijkstra's algorithm.
+   * @param source The origin of the path.
+   * @param sink The end of the path.
+   * @return The shortest path from the source to the sink.
+   */
+  public List<Edge> shortestPath(int source, int sink) {
+    class Vertex {
+      public int weight;
+      public final int index;
+      public List<Edge> edges;
+      public boolean visited;
+
+      /**
+       * Creates a vertex to be used in the priority queue.
+       * @param weight1 The weight of the vertex.
+       * @param index1 Its index in the vertex array.
+       * @param edges1 The edges to this vertex.
+       */
+      public Vertex(int weight1, int index1, List<Edge> edges1) {
+        this.weight = weight1;
+        this.index = index1;
+        this.edges = edges1;
+        this.visited = false;
+      } // Vertex(int, int)
+
+      /**
+       * Check if this object is equal to another.
+       * 
+       * @param other The object to compare to this one.
+       */
+      public boolean equals(Object other) {
+        if (other instanceof Vertex) {
+          Vertex otherV = (Vertex) other;
+          return otherV.weight == this.weight && otherV.index == this.index && otherV.edges.equals(this.edges);
+        } else {
+          return false;
+        } // if
+      } // equals(Object)
+    } // class Vertex
+
+    Vertex[] unvisited = new Vertex[this.numVertices()];
+    for (int i = 0; i < this.numVertices(); i++) {
+      unvisited[i] = new Vertex(i == source ? 0 : Integer.MAX_VALUE, i, List.of());
+    } // for
+    while (true) {
+      Vertex found = null;
+      for (Vertex individual : unvisited) {
+        if (individual.visited) {
+          continue;
+        } // if
+        if (found == null || individual.weight < found.weight) {
+          found = individual;
+        } // if
+      } // for
+      if (found == null) {
+        return unvisited[sink].edges;
+      } else {
+        found.visited = true;
+        for (Edge edge : this.edgesFrom(found.index)) {
+          Vertex v = unvisited[edge.target()];
+          if (v.weight > found.weight + edge.weight()) {
+            v.edges = new ArrayList<>(found.edges);
+            v.edges.add(edge);
+            v.weight = found.weight + edge.weight();
+          } // if
+        } // for
+      } // if
+    } // while
+  } // shortestPath(int, int)
 
   /**
    * Get an iterable for the vertices.
