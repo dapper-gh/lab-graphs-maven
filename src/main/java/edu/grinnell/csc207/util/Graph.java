@@ -13,7 +13,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
-import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Stack;
 
@@ -547,11 +546,11 @@ public class Graph {
    * @param sink The end of the path.
    * @return The shortest path from the source to the sink.
    */
-  public List<Edge> shortestPath(int source, int sink) {
+  public Edge[] shortestPath(int source, int sink) {
     class Vertex {
       public int weight;
       public final int index;
-      public List<Edge> edges;
+      public Edge[] edges;
       public boolean visited;
 
       /**
@@ -560,31 +559,17 @@ public class Graph {
        * @param index1 Its index in the vertex array.
        * @param edges1 The edges to this vertex.
        */
-      public Vertex(int weight1, int index1, List<Edge> edges1) {
+      public Vertex(int weight1, int index1, Edge[] edges1) {
         this.weight = weight1;
         this.index = index1;
         this.edges = edges1;
         this.visited = false;
-      } // Vertex(int, int)
-
-      /**
-       * Check if this object is equal to another.
-       * 
-       * @param other The object to compare to this one.
-       */
-      public boolean equals(Object other) {
-        if (other instanceof Vertex) {
-          Vertex otherV = (Vertex) other;
-          return otherV.weight == this.weight && otherV.index == this.index && otherV.edges.equals(this.edges);
-        } else {
-          return false;
-        } // if
-      } // equals(Object)
+      } // Vertex(int, int, Edge[])
     } // class Vertex
 
     Vertex[] unvisited = new Vertex[this.numVertices()];
     for (int i = 0; i < this.numVertices(); i++) {
-      unvisited[i] = new Vertex(i == source ? 0 : Integer.MAX_VALUE, i, List.of());
+      unvisited[i] = new Vertex(i == source ? 0 : Integer.MAX_VALUE, i, new Edge[0]);
     } // for
     while (true) {
       Vertex found = null;
@@ -592,19 +577,24 @@ public class Graph {
         if (individual.visited) {
           continue;
         } // if
-        if (found == null || individual.weight < found.weight) {
+        if ((found == null || individual.weight < found.weight)
+              && individual.weight != Integer.MAX_VALUE) {
           found = individual;
         } // if
       } // for
       if (found == null) {
-        return unvisited[sink].edges;
+        return null;
       } else {
+        if (found.index == sink) {
+          return found.edges;
+        } // if
         found.visited = true;
         for (Edge edge : this.edgesFrom(found.index)) {
           Vertex v = unvisited[edge.target()];
           if (v.weight > found.weight + edge.weight()) {
-            v.edges = new ArrayList<>(found.edges);
-            v.edges.add(edge);
+            v.edges = new Edge[found.edges.length + 1];
+            System.arraycopy(found.edges, 0, v.edges, 0, found.edges.length);
+            v.edges[v.edges.length - 1] = edge;
             v.weight = found.weight + edge.weight();
           } // if
         } // for
